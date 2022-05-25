@@ -1,0 +1,16 @@
+body {
+    background-color: rgb(27, 25, 45);
+    margin: 0;
+    padding: 0;
+}
+
+canvas {
+    /* for a 800 pixel canvas, place 400 pixels left of center */
+    /* margin: 100px calc(50vw - 400px); */
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}

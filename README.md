@@ -1,2 +1,2 @@
-# PRG4-game
-Game made for PRG4
+# PRG4
+Game for prg4
