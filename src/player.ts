@@ -68,9 +68,6 @@ export class Player extends PIXI.AnimatedSprite{
         break
         }
     }
-    public attack(){
-
-    }
 
     clamp(num: number, min: number, max: number) {
         return Math.min(Math.max(num, min), max)
