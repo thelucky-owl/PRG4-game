@@ -1,0 +1,175 @@
+{
+	"frames": {
+		"tile0.png": {
+			"frame": {
+				"x": 1,
+				"y": 1,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile1.png": {
+			"frame": {
+				"x": 1,
+				"y": 159,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile2.png": {
+			"frame": {
+				"x": 1,
+				"y": 317,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile3.png": {
+			"frame": {
+				"x": 1,
+				"y": 475,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile4.png": {
+			"frame": {
+				"x": 1,
+				"y": 633,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile5.png": {
+			"frame": {
+				"x": 507,
+				"y": 1,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile6.png": {
+			"frame": {
+				"x": 507,
+				"y": 159,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		},
+		"tile7.png": {
+			"frame": {
+				"x": 507,
+				"y": 317,
+				"w": 504,
+				"h": 156
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 504,
+				"h": 156
+			},
+			"sourceSize": {
+				"w": 504,
+				"h": 156
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 1012,
+			"h": 790
+		},
+		"scale": "1"
+	}
+}
