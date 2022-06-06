@@ -5,43 +5,49 @@ import {Game} from "./game"
 export class Player extends PIXI.AnimatedSprite{
     public xSpeed: number = 0
     public ySpeed: number = 0
+    public health: number = 10
     game: Game
-    private sword: PIXI.Sprite
-    constructor(textures: Texture[], game:Game,sword: PIXI.Sprite){
+    constructor(textures: Texture[], game:Game){
         super(textures)
         this.x = 100
         this.y = 100
         this.anchor.set(0.5)
-        this.animationSpeed = 0.07
+        this.animationSpeed = 0.1
         this.game = game
-        this.sword = sword
         this.play()
     }
     public onKeyDown(e: KeyboardEvent):void{
         switch(e.key.toUpperCase()){
             case"D":
             case"ARROWRIGHT":
-                this.xSpeed = 5
+                this.xSpeed = 2
                 this.scale.set(1)
             break
             case"A":
             case"ARROWLEFT":
-                this.xSpeed = -5
+                this.xSpeed = -2
                 this.scale.set(-1,1)
                 
             break
             case"W":
             case"ARROWUP":
-                this.ySpeed = -5
+                this.ySpeed = -2
                 
             break
             case"S":
             case"ARROWDOWN":
-                this.ySpeed = 5
+                this.ySpeed = 2
                 
             break
             case"F":
-            this.sword.visible = true
+            // this.game.sword.visible = true
+            this.game.attack.visible = true
+            this.game.attack.play()
+            this.game.attack.onComplete = ()=>{
+                console.log("animation done")
+                this.game.attack.visible = false
+                this.game.attack.gotoAndStop(0)
+            }
             break
         }
     }
@@ -63,10 +69,15 @@ export class Player extends PIXI.AnimatedSprite{
                 
             break
             case"F":
-            this.sword.visible = false
+            // this.game.sword.visible = false
             
-        break
+            
+            break
         }
+    }
+
+    animationReset(){
+
     }
 
     clamp(num: number, min: number, max: number) {
@@ -81,8 +92,8 @@ export class Player extends PIXI.AnimatedSprite{
         this.y = this.clamp(this.y + this.ySpeed, 0, mapheight)
  
         super.update(delta)
-       this.x += this.xSpeed
-       this.y += this.ySpeed
+        this.x += this.xSpeed
+        this.y += this.ySpeed
     }
 
 }
