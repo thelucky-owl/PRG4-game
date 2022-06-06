@@ -3,7 +3,9 @@ import { Application, Sprite, Texture } from 'pixi.js'
 import {Game} from "./game"
 
 export class Enemy extends PIXI.AnimatedSprite{
-    private speed: number
+    public xSpeed: number = 0
+    public ySpeed: number = 0
+    public health: number = 10
     game: Game
     constructor(textures: Texture[], game:Game){
         super(textures)
