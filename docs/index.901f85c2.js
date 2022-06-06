@@ -535,77 +535,140 @@ var _grassPng = require("./images/grass.png");
 var _grassPngDefault = parcelHelpers.interopDefault(_grassPng);
 var _swordPng = require("./images/sword.png");
 var _swordPngDefault = parcelHelpers.interopDefault(_swordPng);
+var _ff6961Png = require("./images/ff6961.png");
+var _ff6961PngDefault = parcelHelpers.interopDefault(_ff6961Png);
 var _enemy = require("./enemy");
 var _player = require("./player");
 class Game {
     enemyArray = [];
     playerTextures = [];
     enemyTextures = [];
+    attackTextures = [];
+    hit = false;
+    invincibleCounter = 0;
     constructor(){
+        //create new pixi application
         this.pixi = new _pixiJs.Application({
             width: 800,
             height: 450
         });
         document.body.appendChild(this.pixi.view);
+        //create new pixi loader
         this.loader = new _pixiJs.Loader();
+        //create keyboard events
         window.addEventListener("keydown", (e)=>this.player.onKeyDown(e)
         );
         window.addEventListener("keyup", (e)=>this.player.onKeyUp(e)
         );
-        this.loader.add('grassTexture', _grassPngDefault.default).add("swordTexture", _swordPngDefault.default).add("spritesheet", "spritesheet.json").add("spritesheetBat", "spritesheetBat.json");
+        //load sprites
+        this.loader.add('grassTexture', _grassPngDefault.default).add("swordTexture", _swordPngDefault.default).add("redTexture", _ff6961PngDefault.default).add("spritesheet", "spritesheet.json").add("spritesheetBat", "spritesheetBat.json").add("spritesheetAttack", "spritesheetAttack.json");
         this.loader.load(()=>this.loadCompleted()
         );
     }
     loadCompleted() {
-        this.sword = new _pixiJs.Sprite(this.loader.resources["swordTexture"].texture);
-        this.sword.angle = 90;
-        this.sword.x = 100;
-        this.sword.scale.set(0.1, 0.1);
-        this.sword.visible = false;
+        //make spritesheets
+        this.createSpritesheet(8, this.playerTextures, 'tile');
+        this.createSpritesheet(7, this.enemyTextures, 'batTile');
+        this.createSpritesheet(6, this.attackTextures, 'tileAttack');
+        //create attack
+        //create background
         const background = new _pixiJs.Sprite(this.loader.resources['grassTexture'].texture);
         background.scale.set(1.4);
+        //create animated attack
+        this.attack = new _pixiJs.AnimatedSprite(this.attackTextures);
+        this.attack.x = 100;
+        this.attack.animationSpeed = 0.5;
+        this.attack.anchor.set(0.5);
+        // this.attack.scale.set(0.1,0.1)
+        this.attack.visible = false;
+        this.attack.loop = false;
+        //create player
+        this.player = new _player.Player(this.playerTextures, this);
+        this.player.play();
+        //create player hitbox this.loader.resources['redTexture'].texture!
+        this.playerHitbox = new _pixiJs.Sprite();
+        this.playerHitbox.anchor.set(0.5);
+        // this.playerHitbox.visible = false
+        this.playerHitbox.scale.set(0.3, 0.3);
+        this.player.addChild(this.playerHitbox);
+        this.player.addChild(this.attack);
+        //add everything to stage
         this.pixi.stage.addChild(background);
-        for(let i = 0; i < 7; i++){
-            const texture = _pixiJs.Texture.from(`tile${i}.png`);
-            this.playerTextures.push(texture);
-            console.log(this.playerTextures);
-        }
-        for(let i1 = 0; i1 < 7; i1++){
-            const batTexture = _pixiJs.Texture.from(`batTile${i1}.png`);
-            this.enemyTextures.push(batTexture);
-            console.log(this.enemyTextures);
-        }
-        for(let i2 = 0; i2 < 5; i2++){
+        this.pixi.stage.addChild(this.player);
+        // this.player.addChild(this.sword)
+        //spawn enemies after so theyre on top of bg
+        for(let i = 0; i < 5; i++){
             let enemy = new _enemy.Enemy(this.enemyTextures, this);
             this.pixi.stage.addChild(enemy);
             this.enemyArray.push(enemy);
         }
-        this.player = new _player.Player(this.playerTextures, this, this.sword);
-        this.player.play();
-        this.pixi.stage.addChild(this.player);
-        this.player.addChild(this.sword);
         this.pixi.ticker.add((delta)=>this.update(delta)
         );
+    }
+    testCreateSpritesheet() {
+        for(let i = 0; i < 7; i++){
+            const texture = _pixiJs.Texture.from(`tile${i}.png`);
+            this.playerTextures.push(texture);
+        }
+        for(let i1 = 0; i1 < 7; i1++){
+            const batTexture = _pixiJs.Texture.from(`batTile${i1}.png`);
+            this.enemyTextures.push(batTexture);
+        }
+    }
+    createSpritesheet(spriteAmount, spriteArray, tileName) {
+        for(let i = 0; i < spriteAmount; i++){
+            const texture = _pixiJs.Texture.from(`${tileName}${i}.png`);
+            spriteArray.push(texture);
+        }
     }
     collision(sprite1, sprite2) {
         const bounds1 = sprite1.getBounds();
         const bounds2 = sprite2.getBounds();
         return bounds1.x < bounds2.x + bounds2.width && bounds1.x + bounds1.width > bounds2.x && bounds1.y < bounds2.y + bounds2.height && bounds1.y + bounds1.height > bounds2.y;
     }
+    // && this.sword.visible == true
+    takeDamage() {
+        this.hit = true;
+        this.player.health -= 1;
+        console.log(this.player.health);
+        //check for death
+        if (this.player.health <= 0) console.log("you lose");
+    }
     update(delta) {
         for (const enemy of this.enemyArray){
             enemy.update(delta);
-            if (this.collision(this.player, enemy) && this.sword.visible == true) this.pixi.stage.removeChild(enemy);
+            if (this.collision(this.playerHitbox, enemy) && this.hit == false) this.takeDamage();
+            if (this.collision(this.attack, enemy) && this.attack.visible == true) {
+                //delete from array
+                this.enemyArray = this.enemyArray.filter((f)=>f != enemy
+                );
+                //delete from pixi
+                enemy.destroy();
+            }
         }
         this.pixi.stage.children.filter((object)=>object instanceof _enemy.Enemy
         ).length;
         this.player.update(delta);
-    // console.log("update")
+        // console.log("update")
+        switch(this.hit){
+            case this.invincibleCounter > 100:
+                this.invincibleCounter = 0;
+                this.hit = false;
+                break;
+            case this.hit = this.invincibleCounter < 100:
+                this.invincibleCounter += delta;
+                break;
+        }
     }
 }
-new Game;
+new Game //  this.sword =  new PIXI.Sprite(this.loader.resources["swordTexture"].texture!)
+ //         this.sword.angle = 90
+ //         this.sword.x = 100
+ //         this.sword.scale.set(0.1,0.1)
+ //         this.sword.visible = false
+;
 
-},{"pixi.js":"dsYej","./images/grass.png":"hKlE2","./enemy":"e8Rej","./player":"6OTSH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./images/sword.png":"lE4S9"}],"dsYej":[function(require,module,exports) {
+},{"pixi.js":"dsYej","./images/grass.png":"hKlE2","./enemy":"e8Rej","./player":"6OTSH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./images/sword.png":"lE4S9","./images/ff6961.png":"hl2BF"}],"dsYej":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "utils", ()=>_utils
@@ -37146,6 +37209,9 @@ parcelHelpers.export(exports, "Enemy", ()=>Enemy
 );
 var _pixiJs = require("pixi.js");
 class Enemy extends _pixiJs.AnimatedSprite {
+    xSpeed = 0;
+    ySpeed = 0;
+    health = 10;
     constructor(textures, game){
         super(textures);
         this.x = Math.random() * game.pixi.screen.right;
@@ -37172,38 +37238,45 @@ var _pixiJs = require("pixi.js");
 class Player extends _pixiJs.AnimatedSprite {
     xSpeed = 0;
     ySpeed = 0;
-    constructor(textures, game, sword){
+    health = 10;
+    constructor(textures, game){
         super(textures);
         this.x = 100;
         this.y = 100;
         this.anchor.set(0.5);
-        this.animationSpeed = 0.07;
+        this.animationSpeed = 0.1;
         this.game = game;
-        this.sword = sword;
         this.play();
     }
     onKeyDown(e) {
         switch(e.key.toUpperCase()){
             case "D":
             case "ARROWRIGHT":
-                this.xSpeed = 5;
+                this.xSpeed = 2;
                 this.scale.set(1);
                 break;
             case "A":
             case "ARROWLEFT":
-                this.xSpeed = -5;
+                this.xSpeed = -2;
                 this.scale.set(-1, 1);
                 break;
             case "W":
             case "ARROWUP":
-                this.ySpeed = -5;
+                this.ySpeed = -2;
                 break;
             case "S":
             case "ARROWDOWN":
-                this.ySpeed = 5;
+                this.ySpeed = 2;
                 break;
             case "F":
-                this.sword.visible = true;
+                // this.game.sword.visible = true
+                this.game.attack.visible = true;
+                this.game.attack.play();
+                this.game.attack.onComplete = ()=>{
+                    console.log("animation done");
+                    this.game.attack.visible = false;
+                    this.game.attack.gotoAndStop(0);
+                };
                 break;
         }
     }
@@ -37222,11 +37295,10 @@ class Player extends _pixiJs.AnimatedSprite {
                 this.ySpeed = 0;
                 break;
             case "F":
-                this.sword.visible = false;
                 break;
         }
     }
-    attack() {}
+    animationReset() {}
     clamp(num, min, max) {
         return Math.min(Math.max(num, min), max);
     }
@@ -37244,6 +37316,9 @@ class Player extends _pixiJs.AnimatedSprite {
 
 },{"pixi.js":"dsYej","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lE4S9":[function(require,module,exports) {
 module.exports = require('./helpers/bundle-url').getBundleURL('emE5o') + "sword.785c6be2.png" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"hl2BF":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('emE5o') + "ff6961.30dc5079.png" + "?" + Date.now();
 
 },{"./helpers/bundle-url":"lgJ39"}]},["a5k68","edeGs"], "edeGs", "parcelRequirea0e5")
 
