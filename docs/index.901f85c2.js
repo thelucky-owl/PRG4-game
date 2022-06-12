@@ -533,8 +533,6 @@ parcelHelpers.export(exports, "Game", ()=>Game
 var _pixiJs = require("pixi.js");
 var _grassPng = require("./images/grass.png");
 var _grassPngDefault = parcelHelpers.interopDefault(_grassPng);
-var _swordPng = require("./images/sword.png");
-var _swordPngDefault = parcelHelpers.interopDefault(_swordPng);
 var _ff6961Png = require("./images/ff6961.png");
 var _ff6961PngDefault = parcelHelpers.interopDefault(_ff6961Png);
 var _enemy = require("./enemy");
@@ -544,7 +542,6 @@ class Game {
     playerTextures = [];
     enemyTextures = [];
     attackTextures = [];
-    hit = false;
     invincibleCounter = 0;
     constructor(){
         //create new pixi application
@@ -561,16 +558,16 @@ class Game {
         window.addEventListener("keyup", (e)=>this.player.onKeyUp(e)
         );
         //load sprites
-        this.loader.add('grassTexture', _grassPngDefault.default).add("swordTexture", _swordPngDefault.default).add("redTexture", _ff6961PngDefault.default).add("spritesheet", "spritesheet.json").add("spritesheetBat", "spritesheetBat.json").add("spritesheetAttack", "spritesheetAttack.json");
+        this.loader.add('grassTexture', _grassPngDefault.default).add("redTexture", _ff6961PngDefault.default).add("spritesheet", "spritesheet.json").add("spritesheetBat", "spritesheetBat.json").add("spritesheetAttack", "spritesheetAttack.json");
         this.loader.load(()=>this.loadCompleted()
         );
     }
+    //function executed once pixi loader has added textures
     loadCompleted() {
-        //make spritesheets
+        //Fill spritesheet arrays
         this.createSpritesheet(8, this.playerTextures, 'tile');
         this.createSpritesheet(7, this.enemyTextures, 'batTile');
         this.createSpritesheet(6, this.attackTextures, 'tileAttack');
-        //create attack
         //create background
         const background = new _pixiJs.Sprite(this.loader.resources['grassTexture'].texture);
         background.scale.set(1.4);
@@ -579,24 +576,23 @@ class Game {
         this.attack.x = 100;
         this.attack.animationSpeed = 0.5;
         this.attack.anchor.set(0.5);
-        // this.attack.scale.set(0.1,0.1)
         this.attack.visible = false;
         this.attack.loop = false;
         //create player
         this.player = new _player.Player(this.playerTextures, this);
         this.player.play();
-        //create player hitbox this.loader.resources['redTexture'].texture!
+        //create player hitbox 
+        // this.loader.resources['redTexture'].texture!, commented out but can be used to see size of the hitbox
+        // this.playerHitbox.visible = false
         this.playerHitbox = new _pixiJs.Sprite();
         this.playerHitbox.anchor.set(0.5);
-        // this.playerHitbox.visible = false
         this.playerHitbox.scale.set(0.3, 0.3);
         this.player.addChild(this.playerHitbox);
         this.player.addChild(this.attack);
         //add everything to stage
         this.pixi.stage.addChild(background);
         this.pixi.stage.addChild(this.player);
-        // this.player.addChild(this.sword)
-        //spawn enemies after so theyre on top of bg
+        //spawn enemies
         for(let i = 0; i < 5; i++){
             let enemy = new _enemy.Enemy(this.enemyTextures, this);
             this.pixi.stage.addChild(enemy);
@@ -626,18 +622,13 @@ class Game {
         const bounds2 = sprite2.getBounds();
         return bounds1.x < bounds2.x + bounds2.width && bounds1.x + bounds1.width > bounds2.x && bounds1.y < bounds2.y + bounds2.height && bounds1.y + bounds1.height > bounds2.y;
     }
-    // && this.sword.visible == true
-    takeDamage() {
-        this.hit = true;
-        this.player.health -= 1;
-        console.log(this.player.health);
-        //check for death
-        if (this.player.health <= 0) console.log("you lose");
-    }
     update(delta) {
         for (const enemy of this.enemyArray){
             enemy.update(delta);
-            if (this.collision(this.playerHitbox, enemy) && this.hit == false) this.takeDamage();
+            if (this.collision(this.playerHitbox, enemy) && this.player.hasBeenHit == false) {
+                this.player.takeDamage();
+                this.player.hasBeenHit = true;
+            }
             if (this.collision(this.attack, enemy) && this.attack.visible == true) {
                 //delete from array
                 this.enemyArray = this.enemyArray.filter((f)=>f != enemy
@@ -649,26 +640,20 @@ class Game {
         this.pixi.stage.children.filter((object)=>object instanceof _enemy.Enemy
         ).length;
         this.player.update(delta);
-        // console.log("update")
-        switch(this.hit){
+        switch(this.player.hasBeenHit == true){
             case this.invincibleCounter > 100:
                 this.invincibleCounter = 0;
-                this.hit = false;
+                this.player.hasBeenHit = false;
                 break;
-            case this.hit = this.invincibleCounter < 100:
+            case this.player.hasBeenHit == true && this.invincibleCounter < 100:
                 this.invincibleCounter += delta;
                 break;
         }
     }
 }
-new Game //  this.sword =  new PIXI.Sprite(this.loader.resources["swordTexture"].texture!)
- //         this.sword.angle = 90
- //         this.sword.x = 100
- //         this.sword.scale.set(0.1,0.1)
- //         this.sword.visible = false
-;
+new Game;
 
-},{"pixi.js":"dsYej","./images/grass.png":"hKlE2","./enemy":"e8Rej","./player":"6OTSH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./images/sword.png":"lE4S9","./images/ff6961.png":"hl2BF"}],"dsYej":[function(require,module,exports) {
+},{"pixi.js":"dsYej","./images/grass.png":"hKlE2","./enemy":"e8Rej","./player":"6OTSH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./images/ff6961.png":"hl2BF"}],"dsYej":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "utils", ()=>_utils
@@ -37211,9 +37196,12 @@ var _pixiJs = require("pixi.js");
 class Enemy extends _pixiJs.AnimatedSprite {
     xSpeed = 0;
     ySpeed = 0;
-    health = 10;
+    health = 20;
+    previousHit = false;
+    currentHit = false;
     constructor(textures, game){
         super(textures);
+        this.game = game;
         this.x = Math.random() * game.pixi.screen.right;
         this.y = Math.random() * game.pixi.screen.bottom;
         this.scale.set(-1, 1);
@@ -37221,6 +37209,20 @@ class Enemy extends _pixiJs.AnimatedSprite {
         this.animationSpeed = 0.1;
         this.tint = Math.random() * 0xFFFFFF;
         this.play();
+    }
+    takeDamage() {
+        // maybe do something with different weapons, more damage whatever
+        // bijv. this.health -= player.weapon.damage
+        if (!this.previousHit) {
+            console.log(this.health);
+            this.health -= 1;
+            //check for death
+            if (this.health <= 0) {
+                this.game.enemyArray = this.game.enemyArray.filter((f)=>f != this
+                );
+                this.destroy();
+            }
+        }
     }
     update(delta) {
         super.update(delta);
@@ -37239,6 +37241,7 @@ class Player extends _pixiJs.AnimatedSprite {
     xSpeed = 0;
     ySpeed = 0;
     health = 10;
+    hasBeenHit = false;
     constructor(textures, game){
         super(textures);
         this.x = 100;
@@ -37298,7 +37301,12 @@ class Player extends _pixiJs.AnimatedSprite {
                 break;
         }
     }
-    animationReset() {}
+    takeDamage() {
+        this.health -= 1;
+        console.log(this.health);
+        //check for death
+        if (this.health <= 0) console.log("you lose");
+    }
     clamp(num, min, max) {
         return Math.min(Math.max(num, min), max);
     }
@@ -37314,10 +37322,7 @@ class Player extends _pixiJs.AnimatedSprite {
     }
 }
 
-},{"pixi.js":"dsYej","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lE4S9":[function(require,module,exports) {
-module.exports = require('./helpers/bundle-url').getBundleURL('emE5o') + "sword.785c6be2.png" + "?" + Date.now();
-
-},{"./helpers/bundle-url":"lgJ39"}],"hl2BF":[function(require,module,exports) {
+},{"pixi.js":"dsYej","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hl2BF":[function(require,module,exports) {
 module.exports = require('./helpers/bundle-url').getBundleURL('emE5o') + "ff6961.30dc5079.png" + "?" + Date.now();
 
 },{"./helpers/bundle-url":"lgJ39"}]},["a5k68","edeGs"], "edeGs", "parcelRequirea0e5")
