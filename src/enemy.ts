@@ -3,12 +3,17 @@ import { Application, Sprite, Texture } from 'pixi.js'
 import {Game} from "./game"
 
 export class Enemy extends PIXI.AnimatedSprite{
-    public xSpeed: number = 0
-    public ySpeed: number = 0
-    public health: number = 10
-    game: Game
+    //not used yet so commented out
+    // private xSpeed: number = 0
+    // private ySpeed: number = 0
+    // public health: number = 20
+    private game: Game
+    public previousHit:boolean = false
+    public currentHit:boolean = false
+
     constructor(textures: Texture[], game:Game){
         super(textures)
+        this.game = game
         this.x = Math.random()* game.pixi.screen.right
         this.y = Math.random()* game.pixi.screen.bottom
         this.scale.set(-1,1)
@@ -17,14 +22,31 @@ export class Enemy extends PIXI.AnimatedSprite{
         this.tint = Math.random() * 0xFFFFFF
         this.play()
     }
-
+    
     update(delta:number){
         super.update(delta)
+        //move enemy to left side of screen when they go off the right
         if(this.x > 850){
             this.x = -150
         }else
         this.x += 1 * delta
         
     }
-
+    
 }
+
+//not working yet so commented out
+    // takeDamage() {
+    //     // maybe do something with different weapons, more damage whatever
+    //     // bijv. this.health -= player.weapon.damage
+    //     if (!this.previousHit) {
+    //         console.log(this.health)
+    //         this.health -= 1
+    //         //check for death
+    //         if (this.health <= 0) {
+    //             this.game.enemyArray = this.game.enemyArray.filter(f => f != this)
+    //             this.destroy()
+    //         }
+    //     }
+       
+    // }
