@@ -1,12 +1,14 @@
 import * as PIXI from 'pixi.js'
-import { Application, Sprite, Texture } from 'pixi.js'
+import { Sprite, Texture } from 'pixi.js'
 import {Game} from "./game"
 
 export class Player extends PIXI.AnimatedSprite{
-    public xSpeed: number = 0
-    public ySpeed: number = 0
+    private xSpeed: number = 0
+    private ySpeed: number = 0
     public health: number = 10
-    game: Game
+    public hasBeenHit :boolean = false
+    private game: Game
+    
     constructor(textures: Texture[], game:Game){
         super(textures)
         this.x = 100
@@ -40,9 +42,10 @@ export class Player extends PIXI.AnimatedSprite{
                 
             break
             case"F":
-            // this.game.sword.visible = true
+            //play the animation and set the elemnt to visible
             this.game.attack.visible = true
             this.game.attack.play()
+            //when animation is complete reset the animation and set the element to invisible
             this.game.attack.onComplete = ()=>{
                 console.log("animation done")
                 this.game.attack.visible = false
@@ -68,30 +71,32 @@ export class Player extends PIXI.AnimatedSprite{
                 this.ySpeed = 0
                 
             break
-            case"F":
-            // this.game.sword.visible = false
-            
-            
-            break
+        }
+    }
+    //function to take damage and check if the player has health above 0
+    public takeDamage(){
+        //lower health
+        this.health -= 1
+        console.log(this.health)
+        //check for death
+        if(this.health <= 0){ 
+            console.log("you lose")
         }
     }
 
-    animationReset(){
-
-    }
-
-    clamp(num: number, min: number, max: number) {
+    private clamp(num: number, min: number, max: number) {
         return Math.min(Math.max(num, min), max)
     }
-    update(delta:number){
+    public update(delta:number){
         let mapwidth = 800
         let mapheight = 450
         
-        // beweeg het karakter over de map maar niet buiten beeld
+        //keep the player inside the map
         this.x = this.clamp(this.x + this.xSpeed, 0, mapwidth)
         this.y = this.clamp(this.y + this.ySpeed, 0, mapheight)
  
         super.update(delta)
+        //update the players position
         this.x += this.xSpeed
         this.y += this.ySpeed
     }
