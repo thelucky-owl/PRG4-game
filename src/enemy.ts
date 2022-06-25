@@ -6,7 +6,7 @@ export class Enemy extends PIXI.AnimatedSprite{
     //not used yet so commented out
     // private xSpeed: number = 0
     // private ySpeed: number = 0
-    // public health: number = 20
+    public health: number = 2
     private game: Game
     public previousHit:boolean = false
     public currentHit:boolean = false
@@ -25,6 +25,7 @@ export class Enemy extends PIXI.AnimatedSprite{
     
     update(delta:number){
         super.update(delta)
+        this.checkCollision()
         //move enemy to left side of screen when they go off the right
         if(this.x > 850){
             this.x = -150
@@ -32,21 +33,30 @@ export class Enemy extends PIXI.AnimatedSprite{
         this.x += 1 * delta
         
     }
+    private checkCollision() {
+        if(this.currentHit && !this.previousHit) {
+            this.health--
+            console.log(this.previousHit)
+            // console.log('hit')
+        }
+
+        this.previousHit = this.currentHit
+    }
+    takeDamage() {
+        // maybe do something with different weapons, more damage whatever
+        // bijv. this.health -= player.weapon.damage
+        if (!this.previousHit) {
+            console.log(this.health)
+            this.health --
+            //check for death
+            if (this.health <= 0) {
+                this.game.enemyArray = this.game.enemyArray.filter(f => f != this)
+                this.destroy()
+            }
+        }
+       
+    }
     
 }
 
 //not working yet so commented out
-    // takeDamage() {
-    //     // maybe do something with different weapons, more damage whatever
-    //     // bijv. this.health -= player.weapon.damage
-    //     if (!this.previousHit) {
-    //         console.log(this.health)
-    //         this.health -= 1
-    //         //check for death
-    //         if (this.health <= 0) {
-    //             this.game.enemyArray = this.game.enemyArray.filter(f => f != this)
-    //             this.destroy()
-    //         }
-    //     }
-       
-    // }
