@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js'
 import grassImage from "./images/grass.png"
 import redImage from "./images/ff6961.png"
+import sound from "url:./sounds/hero_dash.mp3"
 import { Enemy } from './enemy'
 import { Player } from './player'
 import { AnimatedSprite, Application, Container, Ticker } from 'pixi.js'
@@ -8,6 +9,7 @@ import { AnimatedSprite, Application, Container, Ticker } from 'pixi.js'
 export class Game{
     public enemyArray : Enemy [] = []
     public playerTextures: PIXI.Texture[]=[]
+    public playerIdleTextures: PIXI.Texture[]=[]
     public enemyTextures: PIXI.Texture[]=[]
     private attackTextures: PIXI.Texture[]=[]
     private player:Player
@@ -17,9 +19,12 @@ export class Game{
     private loader: PIXI.Loader
     private invincibleCounter:number = 0
 
-    constructor(){
+
+
+    constructor(pixi:PIXI.Application){
         //create new pixi application
-        this.pixi = new PIXI.Application({ width: 800, height: 450 })
+        this.pixi = pixi
+        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
         document.body.appendChild(this.pixi.view)
         //create new pixi loader
         this.loader = new PIXI.Loader()
@@ -33,6 +38,8 @@ export class Game{
             .add("spritesheet","spritesheet.json")
             .add("spritesheetBat","spritesheetBat.json")
             .add("spritesheetAttack","spritesheetAttack.json")
+            .add("spritesheetIdle","spritesheetIdle.json")
+            .add("sound",sound)
         this.loader.load(()=>this.loadCompleted())
     }
 
@@ -40,6 +47,7 @@ export class Game{
     loadCompleted() {
         //Fill spritesheet arrays
         this.createSpritesheet(8,this.playerTextures,'tile')
+        this.createSpritesheet(5,this.playerIdleTextures,'tileIdle')
         this.createSpritesheet(7,this.enemyTextures,'batTile')
         this.createSpritesheet(6,this.attackTextures,'tileAttack')
         //create background
@@ -53,7 +61,7 @@ export class Game{
         this.attack.visible = false
         this.attack.loop = false
         //create player
-        this.player = new Player(this.playerTextures,this);
+        this.player = new Player(this.playerTextures,this.playerIdleTextures,this);
         this.player.play();
         //create player hitbox 
         // this.loader.resources['redTexture'].texture!, commented out but can be used to see size of the hitbox
@@ -72,8 +80,13 @@ export class Game{
             this.pixi.stage.addChild(enemy)
             this.enemyArray.push(enemy)
         }
+        //moet eerst interact hebben  dus ff start scherm toevoegen
+        //    let sound = this.loader.resources["sound"].data!
+        //    sound.play()
+    
         //start ticker/update function
         this.pixi.ticker.add((delta: number) => this.update(delta))
+
     }
     //function to run through spritesheets and create arrays
     createSpritesheet(spriteAmount:number,spriteArray:PIXI.Texture[],tileName:string){
@@ -95,7 +108,9 @@ export class Game{
     
     update(delta:number){
         //for loop which goes through the enemy array
+
         for (const enemy of this.enemyArray){
+            
             //update every enemy
             enemy.update(delta)
             //check collision on player and enemy
@@ -104,11 +119,18 @@ export class Game{
                 this.player.hasBeenHit = true 
             }
             //check collision on the attacks hitbox and an enemy
-            if(this.collision(this.attack,enemy)&&this.attack.visible == true){
-                //delete from array
-                this.enemyArray = this.enemyArray.filter(f => f != enemy)
-                //delete from pixi
-                 enemy.destroy()
+            if(this.collision(this.attack,enemy) && this.attack.visible){
+                enemy.takeDamage()
+                enemy.currentHit = true
+                enemy.previousHit = enemy.currentHit
+                break
+                // //delete from array
+                // this.enemyArray = this.enemyArray.filter(f => f != enemy)
+                // //delete from pixi
+                //  enemy.destroy()
+            }else{
+                console.log('not hit')
+                enemy.currentHit = false
             }
         }
         //check if there are anyt enmies left
@@ -130,4 +152,4 @@ export class Game{
     }
     
 }
-new Game
+
