@@ -8,9 +8,13 @@ export class Player extends PIXI.AnimatedSprite{
     public health: number = 10
     public hasBeenHit :boolean = false
     private game: Game
+    private idleTextures:Texture[]=[]
+    private WalkingTexture:Texture[]=[]
     
-    constructor(textures: Texture[], game:Game){
+    constructor(textures: Texture[],idleTextures:Texture[], game:Game){
         super(textures)
+        this.idleTextures = idleTextures
+        this.WalkingTexture = textures
         this.x = 100
         this.y = 100
         this.anchor.set(0.5)
@@ -23,23 +27,28 @@ export class Player extends PIXI.AnimatedSprite{
             case"D":
             case"ARROWRIGHT":
                 this.xSpeed = 2
+                // this.changeSpritesheetWalking()
                 this.scale.set(1)
             break
             case"A":
             case"ARROWLEFT":
                 this.xSpeed = -2
+                // this.changeSpritesheetWalking()
                 this.scale.set(-1,1)
+
                 
             break
             case"W":
             case"ARROWUP":
                 this.ySpeed = -2
-                
+                // this.changeSpritesheetWalking()
+
             break
             case"S":
             case"ARROWDOWN":
                 this.ySpeed = 2
-                
+                // this.changeSpritesheetWalking()
+
             break
             case"F":
             //play the animation and set the elemnt to visible
@@ -47,29 +56,42 @@ export class Player extends PIXI.AnimatedSprite{
             this.game.attack.play()
             //when animation is complete reset the animation and set the element to invisible
             this.game.attack.onComplete = ()=>{
-                console.log("animation done")
                 this.game.attack.visible = false
                 this.game.attack.gotoAndStop(0)
             }
             break
         }
     }
+    private changeSpritesheetIdle(){
+        this.textures = this.idleTextures
+        this.scale.set(4)
+        this.animationSpeed = 0.08
+        this.play()
+    }
+    private changeSpritesheetWalking(){
+        this.textures = this.WalkingTexture
+        this.scale.set(1)
+        this.play()
+    }
     public onKeyUp(e: KeyboardEvent):void{
         switch(e.key.toUpperCase()){
             case"D":
             case"ARROWRIGHT":
+                this.xSpeed = 0
+                // this.changeSpritesheetIdle()
+            break
             case"A":
             case"ARROWLEFT":
                 this.xSpeed = 0
-                
-                
+                // this.changeSpritesheetIdle()
+                // this.scale.set(-4,4)
             break
             case"W":
             case"ARROWUP":
             case"S":
             case"ARROWDOWN":
                 this.ySpeed = 0
-                
+                // this.changeSpritesheetIdle()
             break
         }
     }
@@ -77,7 +99,7 @@ export class Player extends PIXI.AnimatedSprite{
     public takeDamage(){
         //lower health
         this.health -= 1
-        console.log(this.health)
+        // console.log(this.health)
         //check for death
         if(this.health <= 0){ 
             console.log("you lose")
