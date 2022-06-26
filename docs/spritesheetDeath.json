@@ -1,0 +1,115 @@
+{
+	"frames": {
+		"tileDeath0.png": {
+			"frame": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"sourceSize": {
+				"w": 126,
+				"h": 39
+			}
+		},
+		"tileDeath1.png": {
+			"frame": {
+				"x": 0,
+				"y": 39,
+				"w": 126,
+				"h": 39
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"sourceSize": {
+				"w": 126,
+				"h": 39
+			}
+		},
+		"tileDeath2.png": {
+			"frame": {
+				"x": 0,
+				"y": 78,
+				"w": 126,
+				"h": 39
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"sourceSize": {
+				"w": 126,
+				"h": 39
+			}
+		},
+		"tileDeath3.png": {
+			"frame": {
+				"x": 0,
+				"y": 117,
+				"w": 126,
+				"h": 39
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"sourceSize": {
+				"w": 126,
+				"h": 39
+			}
+		},
+		"tileDeath4.png": {
+			"frame": {
+				"x": 126,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 126,
+				"h": 39
+			},
+			"sourceSize": {
+				"w": 126,
+				"h": 39
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheetDeath.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 252,
+			"h": 156
+		},
+		"scale": "1"
+	}
+}

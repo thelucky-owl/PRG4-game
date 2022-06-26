@@ -9,6 +9,7 @@ export class Level1 extends Sprite{
     public exit:PIXI.Sprite
     private background
     private game:Game
+    private spawnTimer:number = 0
 
     constructor(bgSprite:PIXI.Texture, game:Game,enemyTexture:PIXI.Texture[],exit:Texture){
         super()
@@ -31,7 +32,15 @@ export class Level1 extends Sprite{
         this.game.underLayer.addChild(this.exit)
 
     }
-    public update(){
+    public update(delta:number){
+
+        this.spawnTimer += delta
+        if(this.spawnTimer >= 600&&this.game.player.alive == true){
+            this.spawnTimer = 0
+            let enemy = new Enemy(this.enemyTextures, this.game)
+            this.game.pixi.stage.addChild(enemy)
+            this.enemyArray.push(enemy)
+        }
         if(this.game.collision(this.game.playerHitbox,this.exit)&& this.enemyArray.length <= 0){
             this.destroyAll()
             this.game.createNewlevel()

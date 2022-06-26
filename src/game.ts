@@ -11,6 +11,7 @@ import { AnimatedSprite, Container } from 'pixi.js'
 export class Game{
     private playerTextures: PIXI.Texture[]=[]
     private playerIdleTextures: PIXI.Texture[]=[]
+    private playerDeathTextures: PIXI.Texture[]=[]
     private enemyTextures: PIXI.Texture[]=[]
     private attackTextures: PIXI.Texture[]=[]
     public player:Player
@@ -45,6 +46,7 @@ export class Game{
             .add("spritesheetBat","spritesheetBat.json")
             .add("spritesheetAttack","spritesheetAttack.json")
             .add("spritesheetIdle","spritesheetIdle.json")
+            .add("spritesheetDeath","spritesheetDeath.json")
             .add("sound",sound)
             .add("batSound",batSound)
         this.loader.load(()=>this.loadCompleted())
@@ -57,6 +59,7 @@ export class Game{
         this.createSpritesheet(5,this.playerIdleTextures,'tileIdle')
         this.createSpritesheet(7,this.enemyTextures,'batTile')
         this.createSpritesheet(6,this.attackTextures,'tileAttack')
+        this.createSpritesheet(5,this.playerDeathTextures,'tileDeath')
         //create background
         this.underLayer = new Container()
         this.pixi.stage.addChild(this.underLayer)
@@ -69,7 +72,7 @@ export class Game{
         this.attack.visible = false
         this.attack.loop = false
         //create player
-        this.player = new Player(this.playerTextures,this.playerIdleTextures,this);
+        this.player = new Player(this.playerTextures,this.playerIdleTextures,this.playerDeathTextures,this);
         this.player.play();
         //create player hitbox 
         this.playerHitbox = new PIXI.Sprite(this.loader.resources['redTexture'].texture!)
@@ -124,20 +127,10 @@ export class Game{
         this.level1= new Level1(this.loader.resources['outsideTexture'].texture!,this,this.enemyTextures,this.loader.resources['redTexture'].texture!)
             
     }
-    // public reset(){
-    //     console.log("game over")
-    //     this.player.destroy()
-    //     for(const enemy of this.level1.enemyArray){
-    //         this.level1.enemyArray = this.level1.enemyArray.filter(f => f != enemy)
-    //         enemy.destroy()
-    //     }
-    //     new GameOver(this,this.loader.resources['outsideTexture'].texture!)
-
-    // }
     private update(delta:number){
         this.updateUI()
         //switch case current level = level1, current level = level2, update 1/2 ect.
-       this.level1.update()
+       this.level1.update(delta)
         //for loop which goes through the enemy array
         for (const enemy of this.level1.enemyArray){
             
@@ -164,7 +157,9 @@ export class Game{
             console.log("you win")
         }
         //update the player
-        this.player.updatePlayer(delta)
+        if(this.player.alive == true){
+            this.player.updatePlayer(delta)
+        }
         //switch statement to check if the player has been hit previously, and if the player is still invincible 
         switch(this.player.hasBeenHit == true){
             case this.invincibleCounter>100:
