@@ -78,7 +78,7 @@ export class Game{
         this.playerHitbox = new PIXI.Sprite(this.loader.resources['redTexture'].texture!)
         this.playerHitbox.anchor.set(0.5)
         this.playerHitbox.scale.set(0.1,0.1)
-        // this.playerHitbox.visible = false
+        this.playerHitbox.visible = false
         //add everything to stage
         this.player.addChild(this.playerHitbox)
         this.player.addChild(this.attack)
