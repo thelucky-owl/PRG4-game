@@ -3,7 +3,7 @@ import { Sprite, Texture } from 'pixi.js'
 import { Enemy } from './enemy'
 import { Game } from './game'
 
-export class Level1 extends Sprite{
+export class Level1 extends PIXI.Sprite{
     public enemyTextures: PIXI.Texture[]=[]
     public enemyArray : Enemy [] = []
     public exit:PIXI.Sprite

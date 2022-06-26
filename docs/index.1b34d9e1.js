@@ -554,12 +554,28 @@ class startmenu {
     loadCompleted() {
         this.background = new _pixiJs.Sprite(this.pixi.loader.resources['grassTexture'].texture);
         this.background.scale.set(1.4);
+        this.tutorialText = new _pixiJs.Text("Beweeg met WASD of de pijltjes toetsen.", {
+            "fill": "#d7ffd4",
+            "fontVariant": "small-caps"
+        });
+        this.tutorialText2 = new _pixiJs.Text("Vall aan met F", {
+            "fill": "#d7ffd4",
+            "fontVariant": "small-caps"
+        });
+        this.tutorialText.x = this.pixi.screen.width / 5;
+        this.tutorialText.y = this.pixi.screen.width / 2.9;
+        this.tutorialText2.x = this.pixi.screen.width / 2.6;
+        this.tutorialText2.y = this.pixi.screen.width / 2.6;
         this.pixi.stage.addChild(this.background);
+        this.pixi.stage.addChild(this.tutorialText);
+        this.pixi.stage.addChild(this.tutorialText2);
         this.pixi.stage.addChild(this.button);
     }
     onClick() {
         this.button.destroy();
         this.background.destroy();
+        this.tutorialText.destroy();
+        this.tutorialText2.destroy();
         new _game.Game(this.pixi);
     }
 }
@@ -38813,8 +38829,8 @@ class Game {
         //create player hitbox 
         this.playerHitbox = new _pixiJs.Sprite(this.loader.resources['redTexture'].texture);
         this.playerHitbox.anchor.set(0.5);
-        this.playerHitbox.scale.set(0.3, 0.3);
-        this.playerHitbox.visible = false;
+        this.playerHitbox.scale.set(0.1, 0.1);
+        // this.playerHitbox.visible = false
         //add everything to stage
         this.player.addChild(this.playerHitbox);
         this.player.addChild(this.attack);
@@ -39567,7 +39583,7 @@ class Player extends _pixiJs.AnimatedSprite {
         this.game.attack.x = 25;
         this.animationSpeed = 0.08;
         this.play();
-        this.game.playerHitbox.scale.set(0.1, 0.1);
+        this.game.playerHitbox.scale.set(0.08, 0.08);
     }
     changeSpritesheetWalking() {
         if (this.textures != this.WalkingTexture) {

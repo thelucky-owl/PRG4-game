@@ -80,7 +80,7 @@ export class Player extends PIXI.AnimatedSprite{
         this.game.attack.x = 25
         this.animationSpeed = 0.08
         this.play()
-        this.game.playerHitbox.scale.set(0.1,0.1)
+        this.game.playerHitbox.scale.set(0.08,0.08)
     }
     private changeSpritesheetWalking(){
         if(this.textures != this.WalkingTexture){
