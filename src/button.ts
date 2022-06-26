@@ -14,7 +14,7 @@ export class Button extends PIXI.Graphics{
         this.buttonMode = true
         this.interactive = true
 
-        const startButtonText = new PIXI.Text("start game",{
+        const startButtonText = new PIXI.Text("Start game",{
                 "fill": "#d7ffd4",
                 "fontVariant": "small-caps"
             })
