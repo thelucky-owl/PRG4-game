@@ -5,7 +5,7 @@ import {Game} from "./game"
 export class Player extends PIXI.AnimatedSprite{
     private xSpeed: number = 0
     private ySpeed: number = 0
-    public health: number = 10
+    public health: number = 4
     public hasBeenHit :boolean = false
     private game: Game
     private idleTextures:Texture[]=[]
@@ -23,11 +23,11 @@ export class Player extends PIXI.AnimatedSprite{
         this.play()
     }
     public onKeyDown(e: KeyboardEvent):void{
+        
         switch(e.key.toUpperCase()){
             case"D":
             case"ARROWRIGHT":
                 this.xSpeed = 2
-                // this.changeSpritesheetWalking()
                 this.scale.set(1)
             break
             case"A":
@@ -52,6 +52,7 @@ export class Player extends PIXI.AnimatedSprite{
             break
             case"F":
             //play the animation and set the elemnt to visible
+            this.game.sound.play()
             this.game.attack.visible = true
             this.game.attack.play()
             //when animation is complete reset the animation and set the element to invisible
@@ -101,15 +102,16 @@ export class Player extends PIXI.AnimatedSprite{
         this.health -= 1
         // console.log(this.health)
         //check for death
-        if(this.health <= 0){ 
-            console.log("you lose")
+        if(this.health <= 0){
+           console.log("Game over")
+            // this.game.reset()
         }
     }
 
     private clamp(num: number, min: number, max: number) {
         return Math.min(Math.max(num, min), max)
     }
-    public update(delta:number){
+    public updatePlayer(delta:number){
         let mapwidth = 800
         let mapheight = 450
         
