@@ -1,25 +1,31 @@
 import * as PIXI from 'pixi.js'
-import grassImage from "./images/grass.png"
+import outsideImage from "./images/outside1.png"
 import redImage from "./images/ff6961.png"
-import sound from "url:./sounds/hero_dash.mp3"
+import sound from "url:./sounds/woosh.mp3"
+import batSound from "url:./sounds/batDeath.mp3"
 import { Enemy } from './enemy'
 import { Player } from './player'
-import { AnimatedSprite, Application, Container, Ticker } from 'pixi.js'
+import { Level1 } from './level1'
+import { AnimatedSprite, Container } from 'pixi.js'
 
 export class Game{
-    public enemyArray : Enemy [] = []
-    public playerTextures: PIXI.Texture[]=[]
-    public playerIdleTextures: PIXI.Texture[]=[]
-    public enemyTextures: PIXI.Texture[]=[]
+    private playerTextures: PIXI.Texture[]=[]
+    private playerIdleTextures: PIXI.Texture[]=[]
+    private enemyTextures: PIXI.Texture[]=[]
     private attackTextures: PIXI.Texture[]=[]
-    private player:Player
-    private playerHitbox:PIXI.Sprite
+    public player:Player
+    public playerHitbox:PIXI.Sprite
     public attack:PIXI.AnimatedSprite
     public pixi: PIXI.Application
-    private loader: PIXI.Loader
+    public loader: PIXI.Loader
     private invincibleCounter:number = 0
-
-
+    public underLayer:Container
+    public level1:Level1
+    public score:number = 0
+    private scoreText:PIXI.Text
+    private hpText:PIXI.Text
+    public sound:any
+    public batSound:any
 
     constructor(pixi:PIXI.Application){
         //create new pixi application
@@ -33,30 +39,32 @@ export class Game{
         window.addEventListener("keyup",(e: KeyboardEvent)=>this.player.onKeyUp(e))
         //load sprites
         this.loader
-            .add('grassTexture', grassImage)
+            .add("outsideTexture",outsideImage)
             .add("redTexture",redImage)
             .add("spritesheet","spritesheet.json")
             .add("spritesheetBat","spritesheetBat.json")
             .add("spritesheetAttack","spritesheetAttack.json")
             .add("spritesheetIdle","spritesheetIdle.json")
             .add("sound",sound)
+            .add("batSound",batSound)
         this.loader.load(()=>this.loadCompleted())
     }
 
 //function executed once pixi loader has added textures
-    loadCompleted() {
+    private loadCompleted() {
         //Fill spritesheet arrays
         this.createSpritesheet(8,this.playerTextures,'tile')
         this.createSpritesheet(5,this.playerIdleTextures,'tileIdle')
         this.createSpritesheet(7,this.enemyTextures,'batTile')
         this.createSpritesheet(6,this.attackTextures,'tileAttack')
         //create background
-        const background = new PIXI.Sprite(this.loader.resources['grassTexture'].texture!)
-        background.scale.set(1.4)
+        this.underLayer = new Container()
+        this.pixi.stage.addChild(this.underLayer)
+        this.createNewlevel()
         //create animated attack
         this.attack = new AnimatedSprite(this.attackTextures)
         this.attack.x = 100
-        this.attack.animationSpeed = 0.5
+        this.attack.animationSpeed = 0.4
         this.attack.anchor.set(0.5)
         this.attack.visible = false
         this.attack.loop = false
@@ -64,39 +72,42 @@ export class Game{
         this.player = new Player(this.playerTextures,this.playerIdleTextures,this);
         this.player.play();
         //create player hitbox 
-        // this.loader.resources['redTexture'].texture!, commented out but can be used to see size of the hitbox
-        // this.playerHitbox.visible = false
-        this.playerHitbox = new PIXI.Sprite()
+        this.playerHitbox = new PIXI.Sprite(this.loader.resources['redTexture'].texture!)
         this.playerHitbox.anchor.set(0.5)
         this.playerHitbox.scale.set(0.3,0.3)
+        this.playerHitbox.visible = false
+        //add everything to stage
         this.player.addChild(this.playerHitbox)
         this.player.addChild(this.attack)
-        //add everything to stage
-        this.pixi.stage.addChild(background)
         this.pixi.stage.addChild(this.player);
-        //spawn enemies
-        for(let i = 0; i < 5; i++){
-            let enemy = new Enemy(this.enemyTextures, this)
-            this.pixi.stage.addChild(enemy)
-            this.enemyArray.push(enemy)
-        }
-        //moet eerst interact hebben  dus ff start scherm toevoegen
-        //    let sound = this.loader.resources["sound"].data!
-        //    sound.play()
-    
+        //asign sounds to var
+        this.sound = this.loader.resources["sound"].data!
+        this.batSound = this.loader.resources["batSound"].data!
+        //create ui text
+        this.scoreText = new PIXI.Text(`Score: ${this.score}`,{
+            "fill": "#d7ffd4",
+            "fontVariant": "small-caps"
+        })
+        this.hpText = new PIXI.Text(`Health: ${this.player.health}`,{
+            "fill": "#d7ffd4",
+            "fontVariant": "small-caps"
+        })
+        this.hpText.x = 150
+        this.pixi.stage.addChild(this.scoreText)
+        this.pixi.stage.addChild(this.hpText)
         //start ticker/update function
         this.pixi.ticker.add((delta: number) => this.update(delta))
 
     }
     //function to run through spritesheets and create arrays
-    createSpritesheet(spriteAmount:number,spriteArray:PIXI.Texture[],tileName:string){
+    private createSpritesheet(spriteAmount:number,spriteArray:PIXI.Texture[],tileName:string){
         for(let i = 0; i < spriteAmount; i ++){
             const texture  = PIXI.Texture.from(`${tileName}${i}.png`)
             spriteArray.push(texture)
         }
     }
     //function to check collision on two sprites
-    collision(sprite1:PIXI.Sprite, sprite2:PIXI.Sprite) {
+    public collision(sprite1:PIXI.Sprite, sprite2:PIXI.Sprite) {
         const bounds1 = sprite1.getBounds()
         const bounds2 = sprite2.getBounds()
 
@@ -105,14 +116,33 @@ export class Game{
             && bounds1.y < bounds2.y + bounds2.height
             && bounds1.y + bounds1.height > bounds2.y;
     }
-    
-    update(delta:number){
-        //for loop which goes through the enemy array
+    private updateUI(){
+        this.scoreText.text = `Score: ${this.score}`
+        this.hpText.text = `Health: ${this.player.health}`
+    }
+    public createNewlevel(){
+        this.level1= new Level1(this.loader.resources['outsideTexture'].texture!,this,this.enemyTextures,this.loader.resources['redTexture'].texture!)
+            
+    }
+    // public reset(){
+    //     console.log("game over")
+    //     this.player.destroy()
+    //     for(const enemy of this.level1.enemyArray){
+    //         this.level1.enemyArray = this.level1.enemyArray.filter(f => f != enemy)
+    //         enemy.destroy()
+    //     }
+    //     new GameOver(this,this.loader.resources['outsideTexture'].texture!)
 
-        for (const enemy of this.enemyArray){
+    // }
+    private update(delta:number){
+        this.updateUI()
+        //switch case current level = level1, current level = level2, update 1/2 ect.
+       this.level1.update()
+        //for loop which goes through the enemy array
+        for (const enemy of this.level1.enemyArray){
             
             //update every enemy
-            enemy.update(delta)
+            enemy.updateEnemy(delta,this.player.position)
             //check collision on player and enemy
             if(this.collision(this.playerHitbox,enemy)&& this.player.hasBeenHit == false){
                 this.player.takeDamage()
@@ -124,21 +154,17 @@ export class Game{
                 enemy.currentHit = true
                 enemy.previousHit = enemy.currentHit
                 break
-                // //delete from array
-                // this.enemyArray = this.enemyArray.filter(f => f != enemy)
-                // //delete from pixi
-                //  enemy.destroy()
             }else{
-                console.log('not hit')
+                enemy.knockback = false
                 enemy.currentHit = false
             }
         }
         //check if there are anyt enmies left
-        if(this.pixi.stage.children.filter((object) => object instanceof Enemy).length === 0){
+        if(this.pixi.stage.children.filter((object) => object instanceof Enemy),0){
             console.log("you win")
         }
         //update the player
-        this.player.update(delta)
+        this.player.updatePlayer(delta)
         //switch statement to check if the player has been hit previously, and if the player is still invincible 
         switch(this.player.hasBeenHit == true){
             case this.invincibleCounter>100:
@@ -148,7 +174,8 @@ export class Game{
             case this.player.hasBeenHit == true && this.invincibleCounter < 100:
                 this.invincibleCounter += delta
             break
-        }
+            }
+        
     }
     
 }
